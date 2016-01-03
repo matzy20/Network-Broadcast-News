@@ -22,21 +22,26 @@ function connectionListener(socket){
 
   //broadcast to all sockets/clients
   socket.on('data', function (data) {
+    //moved console.log higher vs under allClients[i].write(data);
+    //this way, it will always console.log vs only after deciding if you're not current client sending data
     console.log(data);
     for (var i =0; i < allClients.length; i++){
-      // console.log("hey you", allClients[i]);
-      allClients[i].write(data);
+      //if no the current client writing data to socket, then ..
+      if (allClients[i] !== socket){
+       allClients[i].write(data);
+      }
     }
   });
 
   socket.on('end', function (){
-    console.log('Socket ended');
+
+    allClients.splice(socket, 1);
+      console.log('left the chat');
     server.getConnections(function (err, length){
-      console.log(length);
+      console.log('Socket ended leaving only ', length);
     });
   });
 }
-
 server.listen(PORT, function() {
   console.log('Server listening on port ' + PORT);
 });
